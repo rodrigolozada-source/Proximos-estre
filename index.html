@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Próximos estrenos | Cultura</title>
+
+<style>
+:root{
+  --ink:#172033;
+  --muted:#64748b;
+  --line:#e5eaf1;
+  --accent:#6d5ce7;
+  --bg:#f5f7fb
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  padding:16px;
+  background:transparent;
+  color:var(--ink);
+  font:14px/1.45 Inter,system-ui,Arial,sans-serif
+}
+
+.wrap{max-width:900px;margin:auto}
+
+.head{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:12px;
+  margin-bottom:12px
+}
+
+h1{font-size:20px;margin:0}
+
+.sub{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:3px
+}
+
+select,input{
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:9px;
+  background:white;
+  color:var(--ink);
+  max-width:100%
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:10px
+}
+
+.card{
+  background:white;
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:13px;
+  display:flex;
+  gap:12px;
+  min-width:0
+}
+
+.poster{
+  width:62px;
+  height:88px;
+  border-radius:9px;
+  overflow:hidden;
+  flex:none;
+  background:#e5e7eb
+}
+
+.poster img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block
+}
+
+.info{min-width:0}
+
+.tag{
+  font-size:10px;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:var(--accent);
+  font-weight:800
+}
+
+h2{
+  font-size:15px;
+  line-height:1.2;
+  margin:4px 0
+}
+
+.meta{
+  color:var(--muted);
+  font-size:12px
+}
+
+.actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+  margin-top:10px
+}
+
+button,.link{
+  border:0;
+  border-radius:8px;
+  padding:7px 10px;
+  background:#eeeaff;
+  color:#4938b5;
+  font-weight:700;
+  font-size:12px;
+  cursor:pointer;
+  text-decoration:none
+}
+
+button:hover,.link:hover{filter:brightness(.96)}
+
+.empty{
+  padding:20px;
+  text-align:center;
+  color:var(--muted);
+  background:white;
+  border-radius:12px
+}
+
+dialog{
+  border:0;
+  border-radius:16px;
+  max-width:440px;
+  width:calc(100% - 28px);
+  padding:20px;
+  color:var(--ink);
+  box-shadow:0 20px 70px #1114
+}
+
+dialog::backdrop{background:#10182888}
+
+.close{
+  float:right;
+  background:#f1f5f9;
+  color:#334155
+}
+
+@media(max-width:480px){
+  body{padding:10px}
+  .head{
+    align-items:start;
+    flex-direction:column
+  }
+  .grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<main class="wrap">
+
+<div class="head">
+  <div>
+    <h1>Próximos estrenos</h1>
+    <div class="sub">Cine · Selecciona una película para ver más información</div>
+  </div>
+
+  <select id="genre">
+    <option value="all">Todos los géneros</option>
+    <option>Acción</option>
+    <option>Ciencia ficción</option>
+    <option>Aventura</option>
+    <option>Drama</option>
+  </select>
+</div>
+
+<div id="films" class="grid"></div>
+
+</main>
+
+<dialog id="detail">
+  <button class="close" id="close">Cerrar ✕</button>
+  <div id="detailBody"></div>
+</dialog>
+
+<script>
+const films=[
+ {
+  title:"Avengers: Doomsday",
+  date:"17 Diciembre 2026",
+  genre:"Acción",
+  rating:"Superhéroes",
+  desc:"Una nueva entrega del universo de superhéroes de Marvel. Consulta la ficha y los materiales promocionales oficiales.",
+  search:"Avengers Doomsday tráiler oficial",
+  poster:"https://catalog.cinema-api.com/cf/images/ncg-images/04a9cb3d9fd24b45af544b44cd4b4105.jpg?version=BDA0A2AE6D2C54940BE5B87E4252394E"
+ },
+ {
+  title:"Dune: Parte tres",
+  date:"15 Diciembre 2026",
+  genre:"Ciencia ficción",
+  rating:"Ciencia ficción",
+  desc:"Regreso al universo de Arrakis en una nueva adaptación cinematográfica.",
+  search:"Dune Part Three trailer",
+  poster:"https://www.imax.com/_next/image?q=75&url=https%3A%2F%2Fimages.ctfassets.net%2Fc4ucztjx9pmu%2F5GKRRV43QjQtzHI8ScLPKg%2Ff88bb5d8ae463cc052e68e2623a4c9ce%2FDUNE3_CHARACTER_TIMOTHEE_1080x1600px_V01.jpg&w=1440"
+ },
+ {
+  title:"Jumanji",
+  date:"25 Diciembre 2026",
+  genre:"Aventura",
+  rating:"Aventura",
+  desc:"Nueva aventura de la saga Jumanji. Comprueba la fecha definitiva en la distribuidora.",
+  search:"Jumanji 2026 tráiler",
+  poster:"https://media.senscritique.com/media/000022506983/0/jumanji_3.jpg"
+ },
+ {
+  title:"Los juegos del hambre",
+  date:"20 Noviembre 2026",
+  genre:"Drama",
+  rating:"Distopía",
+  desc:"Nueva historia ambientada en el universo de Los juegos del hambre.",
+  search:"Hunger Games 2026 trailer",
+  poster:"https://img.buzzfeed.com/buzzfeed-static/static/2025-11/20/16/subbuzz/xGpc91n8a.jpg"
+ }
+];
+
+const root=document.querySelector("#films");
+const filter=document.querySelector("#genre");
+const dlg=document.querySelector("#detail");
+
+function render(){
+  let list=films.filter(
+    f=>filter.value==="all"||f.genre===filter.value
+  );
+
+  root.innerHTML=list.length
+    ?list.map(f=>`
+      <article class="card">
+        <div class="poster">
+          <img
+            src="${f.poster}"
+            alt="Cartel de ${f.title}"
+            loading="lazy"
+          >
+        </div>
+
+        <div class="info">
+          <div class="tag">${f.genre}</div>
+          <h2>${f.title}</h2>
+          <div class="meta">${f.date}</div>
+
+          <div class="actions">
+            <button data-i="${films.indexOf(f)}">
+              Ver detalles
+            </button>
+          </div>
+        </div>
+      </article>
+    `).join("")
+    :'<div class="empty">No hay estrenos de este género.</div>';
+}
+
+root.addEventListener("click",e=>{
+  let b=e.target.closest("button[data-i]");
+  if(!b)return;
+
+  let f=films[+b.dataset.i];
+
+  document.querySelector("#detailBody").innerHTML=`
+    <div class="tag">${f.rating}</div>
+    <h2>${f.title}</h2>
+    <p><b>Estreno previsto:</b> ${f.date}</p>
+    <p>${f.desc}</p>
+    <a
+      class="link"
+      target="_blank"
+      rel="noopener"
+      href="https://www.youtube.com/results?search_query=${encodeURIComponent(f.search)}"
+    >
+      Buscar tráiler ↗
+    </a>
+  `;
+
+  dlg.showModal();
+});
+
+filter.addEventListener("change",render);
+
+document.querySelector("#close").onclick=()=>dlg.close();
+
+render();
+</script>
+</body>
+</html>
